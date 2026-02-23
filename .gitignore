@@ -34,3 +34,10 @@ $RECYCLE.BIN/
 
 # Claude folder
 .claude/
+
+# Docker build outputs
+output/
+input/
+
+# Local environment variables (copy from .env.example)
+.env

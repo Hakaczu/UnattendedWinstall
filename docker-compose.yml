@@ -1,0 +1,27 @@
+services:
+  build-iso:
+    build: ./docker
+    # Mounts:
+    #   .        → /repo    (read-only): provides autounattend.xml
+    #   ./output → /output  (read-write): where the built ISO is written
+    #   ./input  → /input   (read-only, optional): place windows.iso here to
+    #                        skip the download step
+    volumes:
+      - .:/repo:ro
+      - ./output:/output
+      - ./input:/input:ro
+    environment:
+      # ── ISO source ──────────────────────────────────────────────
+      # Set WINDOWS_ISO_URL in .env (or shell) to download the ISO.
+      # Leave unset and mount a local ISO at ./input/windows.iso instead.
+      - WINDOWS_ISO_URL=${WINDOWS_ISO_URL:-}
+
+      # ── Output ──────────────────────────────────────────────────
+      - OUTPUT_NAME=${OUTPUT_NAME:-Windows-Unattended}
+
+      # ── SMB upload (all optional; upload skipped if SMB_HOST unset) ─
+      - SMB_HOST=${SMB_HOST:-}
+      - SMB_SHARE=${SMB_SHARE:-}
+      - SMB_USER=${SMB_USER:-}
+      - SMB_PASSWORD=${SMB_PASSWORD:-}
+      - SMB_DIR=${SMB_DIR:-}

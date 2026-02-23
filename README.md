@@ -106,6 +106,85 @@ For more info, check out the full [video guide](https://youtu.be/lrq3ph3xi50?t=3
 
 ---
 
+### Automated Build with Docker (Self-Hosted)
+
+If you want to build the custom ISO automatically on **your own machine** (Linux, macOS, or Windows with WSL2 / Docker Desktop), you can use the included Docker setup — no GitHub Actions required.
+
+#### Prerequisites
+
+- [Docker](https://docs.docker.com/get-docker/) and [Docker Compose](https://docs.docker.com/compose/install/) installed.
+
+#### Quick start
+
+1. **Clone the repository** (or just copy `autounattend.xml`, `docker/`, and `docker-compose.yml`).
+
+2. **Configure environment variables** – copy `.env.example` to `.env` and fill in your values:
+
+   ```bash
+   cp .env.example .env
+   # edit .env with your preferred editor
+   ```
+
+   | Variable | Required | Description |
+   |---|---|---|
+   | `WINDOWS_ISO_URL` | Yes* | Direct download URL for the Windows ISO |
+   | `OUTPUT_NAME` | No | Output filename without `.iso` (default: `Windows-Unattended`) |
+   | `SMB_HOST` | No | SMB server hostname/IP – leave empty to skip upload |
+   | `SMB_SHARE` | If SMB | Share name (e.g. `isos`) |
+   | `SMB_USER` | If SMB | SMB username |
+   | `SMB_PASSWORD` | If SMB | SMB password |
+   | `SMB_DIR` | No | Subdirectory inside the share (e.g. `windows`) |
+
+   > \* Alternatively, place a `windows.iso` file in the `input/` folder to skip the download step.
+
+3. **Run the build:**
+
+   ```bash
+   docker compose run --rm build-iso
+   ```
+
+   The finished ISO will appear in the `output/` directory.
+
+4. **(Optional)** If `SMB_HOST` is set in `.env`, the ISO is also uploaded to your network share automatically.
+
+<details>
+  <summary>Using a local ISO instead of downloading</summary>
+
+  ```bash
+  mkdir -p input
+  cp /path/to/your/windows.iso input/windows.iso
+  docker compose run --rm build-iso
+  ```
+
+  When `input/windows.iso` exists the download step is skipped entirely.
+
+</details>
+
+<details>
+  <summary>Running without Docker Compose (plain docker run)</summary>
+
+  ```bash
+  # Build the image once
+  docker build -t unattended-winstall ./docker
+
+  # Run
+  docker run --rm \
+    -v "$PWD:/repo:ro" \
+    -v "$PWD/output:/output" \
+    -e WINDOWS_ISO_URL="https://example.com/windows.iso" \
+    -e OUTPUT_NAME="Windows-Unattended" \
+    -e SMB_HOST="192.168.1.10" \
+    -e SMB_SHARE="isos" \
+    -e SMB_USER="myuser" \
+    -e SMB_PASSWORD="mypassword" \
+    -e SMB_DIR="windows" \
+    unattended-winstall
+  ```
+
+</details>
+
+---
+
 ### Other Methods
 #### Method 1: Create a Bootable Windows Installation USB
 
